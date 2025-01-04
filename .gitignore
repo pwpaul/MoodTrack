@@ -169,3 +169,26 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Python bytecode files
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Django specific
+*.sqlite3
+*.log
+media/
+staticfiles/
+
+# Local environment settings
+.env
+
+# VSCode and editor settings (optional, remove if not needed)
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
