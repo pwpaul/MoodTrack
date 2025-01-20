@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = "tracker.CustomUser"
 
 # Change login and logout redirect URLs
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "/answer-questions/"
 LOGOUT_REDIRECT_URL = "/login"
 LOGIN_URL = "/login"
 
@@ -57,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "tracker.middleware.HTMXMiddleware",
 ]
 
 ROOT_URLCONF = "moodtracker.urls"

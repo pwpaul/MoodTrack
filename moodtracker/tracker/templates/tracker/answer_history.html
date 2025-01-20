@@ -1,0 +1,20 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Answer History</h1>
+    <div class="mb-3">
+        <label for="day-range" class="form-label">View answers for the last:</label>
+        <select id="day-range" class="form-select" hx-get="{% url 'answer_history' %}" hx-target="#answers-table" hx-trigger="change">
+            <option value="10" {% if days == 10 %}selected{% endif %}>10 days</option>
+            <option value="20" {% if days == 20 %}selected{% endif %}>20 days</option>
+            <option value="30" {% if days == 30 %}selected{% endif %}>30 days</option>
+            <option value="45" {% if days == 45 %}selected{% endif %}>45 days</option>
+            <option value="60" {% if days == 60 %}selected{% endif %}>60 days</option>
+        </select>
+    </div>
+    <div id="answers-table">
+        {% include 'tracker/partials/answer_history_list.html' %}
+    </div>
+</div>
+{% endblock %}

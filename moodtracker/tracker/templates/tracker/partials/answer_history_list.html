@@ -1,0 +1,32 @@
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Question</th>
+            <th>Answer</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for answer in answers %}
+        <tr>
+            <td>{{ answer.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+                <a href="{% url 'question_chart' answer.question.id %}?days={{ days }}">
+                    {{ answer.question.text }}
+                </a>
+            </td>
+            <td>
+                {% if answer.question.question_type == "YN" %}
+                    {{ answer.yes_no_answer|yesno:"Yes,No" }}
+                {% elif answer.question.question_type == "SC" %}
+                    {{ answer.scale_answer }}
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No answers available for this range.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
