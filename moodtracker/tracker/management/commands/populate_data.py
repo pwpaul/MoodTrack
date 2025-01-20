@@ -14,17 +14,28 @@ class Command(BaseCommand):
         Question.objects.all().delete()
         Category.objects.all().delete()
         self.stdout.write("Existing data cleared.")
-        
+
         # Create or get a superuser for testing
         admin_user, created = CustomUser.objects.get_or_create(
-            username="admin", defaults={"email": "admin@example.com"}
+            username="paul", defaults={"email": "paul.beauvais@gmail.com"}
         )
         if created:
-            admin_user.set_password("adminpassword")
+            admin_user.set_password("Pjb7412J")
             admin_user.save()
-            self.stdout.write("Superuser 'admin' created.")
+            self.stdout.write("Superuser 'paul' created.")
         else:
-            self.stdout.write("Superuser 'admin' already exists.")
+            self.stdout.write("Superuser 'paul' already exists.")
+
+            # Create or get a superuser for testing
+        admin_user, created = CustomUser.objects.get_or_create(
+            username="ashley", defaults={"email": "computerwiz102@gmail.com"}
+        )
+        if created:
+            admin_user.set_password("dontjizzeverywhere")
+            admin_user.save()
+            self.stdout.write("Superuser 'ashley' created.")
+        else:
+            self.stdout.write("Superuser 'ashley' already exists.")
 
         # Add categories
         categories = [
@@ -47,27 +58,22 @@ class Command(BaseCommand):
         # Add questions with appropriate types
         questions = {
             "Mental Health": [
-                ("How was your mood today?", Question.SCALE),
-                ("Did you feel anxious or calm?", Question.YES_NO),
+                ("How was your mood today (solo)?", Question.SCALE),
+                ("How was your mood today (social)?", Question.SCALE),
+                ("Have I cried or wanted to cry?", Question.YES_NO),
+                ("Did I feel 'out of control'?", Question.YES_NO),
             ],
             "Physical Health": [
                 ("Did you exercise today?", Question.YES_NO),
-                ("Rate your sleep quality on a scale from 1 to 10.", Question.SCALE),
-            ],
-            "Productivity": [
-                ("How productive were you?", Question.SCALE),
-                ("Did you accomplish your top goal today?", Question.YES_NO),
-            ],
-            "Relationships": [
-                ("Did you connect with friends or family?", Question.YES_NO),
-                ("How satisfied are you with your interactions today?", Question.SCALE),
-            ],
-            "Hobbies": [
-                ("Did you spend time on hobbies today?", Question.YES_NO),
+                ("Rate your sleep quality last night?", Question.SCALE),
+                ("Did you eat well today?", Question.YES_NO),
                 (
-                    "Rate your enjoyment of hobbies today on a scale from 1 to 10.",
+                    "Feeling on Appearance, scale 1-7, 1=Unattractive/Fat/Weak 7=Attractive/Fit/Strong",
                     Question.SCALE,
                 ),
+            ],
+            "Relationships": [
+                ("Did you connect with friends or family today?", Question.YES_NO),
             ],
         }
 

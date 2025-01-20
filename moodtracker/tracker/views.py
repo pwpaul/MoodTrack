@@ -52,7 +52,7 @@ def answer_question(request, question_id):  # answer a question
 def answer_five_questions(request):
     # Fetch 5 random questions
     questions = Question.objects.order_by("?")[:5]
-    scale_range = list(range(1, 11))  # Generate a list of numbers 1 to 10
+    scale_range = list(range(1, 8))  # Generate a list of numbers 1 to 10
 
     if request.method == "POST":
         for question in questions:
