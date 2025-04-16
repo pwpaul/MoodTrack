@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Question, Answer
 
 
+
 def home(request):  # Home page
     if request.user.is_authenticated:
         return redirect("answer_five")
@@ -74,6 +75,37 @@ def answer_five_questions(request):
                         created_at=now(),
                     )
         return redirect("answer_five")  # Redirect to refresh with new questions
+
+    context = {"questions": questions, "scale_range": scale_range}
+    return render(request, "tracker/answer_five_questions.html", context)
+
+
+@login_required
+def answer_all_questions(request):
+    # Fetch all questions ordered by their ID or other field if preferred
+    questions = Question.objects.all().order_by("id")
+    scale_range = list(range(1, 11))  # Updated scale range from 1 to 10
+
+    if request.method == "POST":
+        for question in questions:
+            if question.question_type == Question.YES_NO:
+                yes_no_answer = request.POST.get(f"yes_no_{question.id}") == "yes"
+                Answer.objects.create(
+                    question=question,
+                    user=request.user,
+                    yes_no_answer=yes_no_answer,
+                    created_at=now(),
+                )
+            elif question.question_type == Question.SCALE:
+                scale_answer = request.POST.get(f"scale_{question.id}")
+                if scale_answer:
+                    Answer.objects.create(
+                        question=question,
+                        user=request.user,
+                        scale_answer=int(scale_answer),
+                        created_at=now(),
+                    )
+        return redirect("answer_all")  # Redirect back to the same view
 
     context = {"questions": questions, "scale_range": scale_range}
     return render(request, "tracker/answer_five_questions.html", context)

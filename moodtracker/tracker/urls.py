@@ -11,7 +11,7 @@ urlpatterns = [
         name="answer_question",
     ),  # Answer a question
     path("answer/", views.answer_question, name="answer_question"),  # Answer question
-    path("answer-five/", views.answer_five_questions, name="answer_five"),
+    path("answer-five/", views.answer_five_questions, name="answer_five"), ## Answer five questions
     path("answer-history/", views.answer_history, name="answer_history"),
     path(
         "question-chart/<int:question_id>/", views.question_chart, name="question_chart"
@@ -22,4 +22,5 @@ urlpatterns = [
         name="login",
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("answer_all/", views.answer_all_questions, name="answer_all"),
 ]
