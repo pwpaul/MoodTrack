@@ -16,6 +16,7 @@ class CustomUserAdmin(UserAdmin):
                     "first_name",
                     "last_name",
                     "email",
+                    "pushover_device_name",
                     "pushover_user_key",
                     "reminder_interval_hours",
                 ),
