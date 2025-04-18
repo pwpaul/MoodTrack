@@ -29,12 +29,21 @@ LOGIN_URL = "/login"
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-blz8u)4%qrhwug%u8&_5_^q@fa^z$)sg14^9fsa^$yoox)#j96"
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+if DEBUG is True:
+    Allowed_Hosts = ['*']
+    SECRET_KEY = "django-insecure-blz8u)4%qrhwug%u8&_5_^q@fa^z$)sg14^9fsa^$yoox)#j96"
+else:
+    ALLOWED_HOSTS = ['157.245.135.6', 'localhost', 'ashleytron2000.reallypaul.wtf']
+    STATIC_ROOT = Path(BASE_DIR) / "staticfiles"
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECRET_KEY = "django-insecure-blz8u)4%qrhwug%u8&_5_^q@fa^z$)sg14^9fsa^$yoox)#j96"
 
 
 # Application definition
@@ -135,5 +144,5 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#Toekn for the pushover API Service
+# Toekn for the pushover API Service
 PUSHOVER_API_TOKEN = os.getenv("PUSHOVER_API_TOKEN", "")
