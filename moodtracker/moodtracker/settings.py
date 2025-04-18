@@ -40,6 +40,7 @@ if DEBUG is True:
 else:
     ALLOWED_HOSTS = ['157.245.135.6', 'localhost', 'ashleytron2000.reallypaul.wtf']
     STATIC_ROOT = Path(BASE_DIR) / "staticfiles"
+    STATIC_URL = "/static/"
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
