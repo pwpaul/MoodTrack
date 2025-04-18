@@ -9,6 +9,7 @@ class CustomUser(AbstractUser):
     )
     goal_statement = models.TextField(null=True, blank=True)
     pushover_user_key = models.CharField(max_length=30, blank=True, null=True)
+    pushover_device_name = models.CharField(max_length=30, blank=True, null=True)
     reminder_interval_hours = models.PositiveIntegerField(default=12)  # e.g. 12 hours
 
 class Category(models.Model):

@@ -22,7 +22,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {
             'classes': ('wide',),
-            'fields': ('pushover_user_key', 'reminder_interval_hours'),
+            'fields': ('pushover_user_key', 'pushover_device_name', 'reminder_interval_hours'),
         }),
     )
 
