@@ -32,7 +32,7 @@ LOGIN_URL = "/login"
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 if DEBUG is True:
     Allowed_Hosts = ['*']
@@ -56,10 +56,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tracker",
     "slideshow",
     "background_task",
-]
+    "tracker.apps.TrackerConfig",
+    ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -145,5 +146,4 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Toekn for the pushover API Service
-PUSHOVER_API_TOKEN = os.getenv("PUSHOVER_API_TOKEN", "")
+

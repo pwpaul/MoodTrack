@@ -18,6 +18,7 @@ class CustomUserAdmin(UserAdmin):
                     "email",
                     "pushover_device_name",
                     "pushover_user_key",
+                    "pushover_app_token",
                     "reminder_interval_hours",
                 ),
             },
@@ -45,6 +46,7 @@ class CustomUserAdmin(UserAdmin):
                 "fields": (
                     "pushover_user_key",
                     "pushover_device_name",
+                    "pushover_app_token",
                     "reminder_interval_hours",
                 ),
             },
@@ -58,6 +60,7 @@ class CustomUserAdmin(UserAdmin):
         "last_name",
         "pushover_user_key",
         "pushover_device_name",
+        "pushover_app_token",
         "reminder_interval_hours",
         "is_staff",
     )

@@ -10,7 +10,10 @@ class CustomUser(AbstractUser):
     goal_statement = models.TextField(null=True, blank=True)
     pushover_user_key = models.CharField(max_length=30, blank=True, null=True)
     pushover_device_name = models.CharField(max_length=30, blank=True, null=True)
+    pushover_app_token = models.CharField(max_length=30, blank=True, null=True)
     reminder_interval_hours = models.PositiveIntegerField(default=12)  # e.g. 12 hours
+    last_reminder_sent = models.DateTimeField(null=True, blank=True) #for reminder tracking
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -22,6 +25,7 @@ class Category(models.Model):
 class Question(models.Model):
     YES_NO = "YN"
     SCALE = "SC"
+
     QUESTION_TYPES = [
         (YES_NO, "Yes/No"),
         (SCALE, "Scale (1-10)"),

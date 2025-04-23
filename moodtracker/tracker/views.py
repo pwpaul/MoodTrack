@@ -83,7 +83,7 @@ def answer_five_questions(request):
 @login_required
 def answer_all_questions(request):
     # Fetch all questions ordered by their ID or other field if preferred
-    questions = Question.objects.all().order_by("id")
+    questions = Question.objects.all().order_by("category__name")
     scale_range = list(range(1, 11))  # Updated scale range from 1 to 10
 
     if request.method == "POST":
