@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = "tracker.CustomUser"
 
 # Change login and logout redirect URLs
-LOGIN_REDIRECT_URL = "/answer-five/"
+LOGIN_REDIRECT_URL = "/answer_all/"
 LOGOUT_REDIRECT_URL = "/login"
 LOGIN_URL = "/login"
 
