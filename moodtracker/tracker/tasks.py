@@ -36,7 +36,10 @@ def send_reminders():
             'token': user.pushover_app_token,
             'user': user.pushover_user_key,
             'device': user.pushover_device_name,
-            'message': "Hi there! You haven’t answered your questions in a bit—please take a moment now.",
+            'title': "AshleyTron2000: Mood Tracker Reminder",
+            'message': f"{user.username}, You haven’t answered your questions in a bit—please take a moment now.",
+            'url': "https://ashleytron2000.reallypaul.wtf",
+            'url_title': "Ashelytron2000",
         }
         try:
             resp = requests.post('https://api.pushover.net/1/messages.json', data=payload)
