@@ -33,7 +33,7 @@ LOGIN_URL = "/login"
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 if DEBUG is True:
     Allowed_Hosts = ['*']
