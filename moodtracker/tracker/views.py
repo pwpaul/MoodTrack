@@ -10,7 +10,7 @@ from .models import Question, Answer
 
 def home(request):  # Home page
     if request.user.is_authenticated:
-        return redirect("answer_five")
+        return redirect("answer_all")
     return render(request, "tracker/home.html")
 
 
