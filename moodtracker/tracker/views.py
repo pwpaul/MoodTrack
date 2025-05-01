@@ -108,7 +108,7 @@ def answer_all_questions(request):
         return redirect("answer_all")  # Redirect back to the same view
 
     context = {"questions": questions, "scale_range": scale_range}
-    return render(request, "tracker/answer_five_questions.html", context)
+    return render(request, "tracker/answer_questions.html", context)
 
 
 @login_required
