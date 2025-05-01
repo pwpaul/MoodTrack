@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, Category, Question, Answer
 from django.utils.translation import gettext_lazy as _
+from django.contrib import admin
+from django_q.models import Schedule, Success, Failure
 
 
 @admin.register(CustomUser)
@@ -70,7 +72,6 @@ class CustomUserAdmin(UserAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
-
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
     list_display = ("text", "category", "question_type")
@@ -80,3 +81,21 @@ class QuestionAdmin(admin.ModelAdmin):
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ("question", "user", "created_at")
+
+@admin.register(Schedule)
+class ScheduleAdmin(admin.ModelAdmin):
+    list_display = ('name', 'func', 'schedule_type', 'minutes', 'repeats', 'next_run', 'last_run')
+    search_fields = ('name', 'func')
+    list_filter = ('schedule_type',)
+
+@admin.register(Success)
+class SuccessAdmin(admin.ModelAdmin):
+    list_display = ('name', 'func', 'started', 'stopped', 'result', 'host')
+    search_fields = ('name', 'func')
+    list_filter = ('started', 'host')
+
+@admin.register(Failure)
+class FailureAdmin(admin.ModelAdmin):
+    list_display = ('name', 'func', 'started', 'stopped', 'result', 'host')
+    search_fields = ('name', 'func')
+    list_filter = ('started', 'host')
