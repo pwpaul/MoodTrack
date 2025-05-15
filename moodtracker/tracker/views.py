@@ -4,8 +4,8 @@ import base64
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.timezone import now, timedelta
 from django.contrib.auth.decorators import login_required
-from .models import Question, Answer
-
+from .models import Category, Question, Answer
+from django.db.models import Prefetch
 
 
 def home(request):  # Home page
@@ -201,3 +201,74 @@ def question_chart(request, question_id):
     if request.htmx:
         return render(request, "tracker/partials/chart.html", context)
     return render(request, "tracker/question_chart.html", context)
+
+
+@login_required
+def advanced_charts(request):
+    # Get parameters
+    days = int(request.GET.get("days", 30))
+    mode = request.GET.get("mode", "multi")  # 'multi' or 'split'
+    category_ids = request.GET.getlist("categories")  # list of IDs
+
+    # Calculate date range
+    start_date = now() - timedelta(days=days)
+
+    # Get all categories (for the UI)
+    all_categories = Category.objects.all()
+
+    # If none selected, default to all
+    if not category_ids:
+        selected_categories = all_categories
+    else:
+        selected_categories = Category.objects.filter(id__in=category_ids)
+
+    # Fetch relevant questions and answers
+    questions = Question.objects.filter(
+        category__in=selected_categories
+    ).prefetch_related(
+        Prefetch(
+            "answers",
+            queryset=Answer.objects.filter(
+                user=request.user, created_at__gte=start_date
+            ).order_by("created_at"),
+            to_attr="filtered_answers",
+        )
+    )
+
+    # Build data for Chart.js
+    chart_data = []
+    for question in questions:
+        data = {
+            "label": question.text,
+            "data": [],
+        }
+        for answer in question.filtered_answers:
+            if (
+                question.question_type == Question.SCALE
+                and answer.scale_answer is not None
+            ):
+                value = answer.scale_answer
+            elif (
+                question.question_type == Question.YES_NO
+                and answer.yes_no_answer is not None
+            ):
+                value = 1 if answer.yes_no_answer else 0
+            else:
+                continue
+            data["data"].append(
+                {"x": answer.created_at.strftime("%Y-%m-%d"), "y": value}
+            )
+        chart_data.append(data)
+
+    context = {
+        "all_categories": all_categories,
+        "selected_category_ids": list(map(str, category_ids)),
+        "days": days,
+        "mode": mode,
+        "chart_data": chart_data,
+    }
+
+    if request.headers.get("Hx-Request"):
+        return render(request, "tracker/partials/chart_canvas.html", context)
+
+    return render(request, "tracker/charts.html", context)
