@@ -205,6 +205,8 @@ def question_chart(request, question_id):
 
 @login_required
 def advanced_charts(request):
+    import json
+    from django.utils.safestring import mark_safe
     # Get parameters
     days = int(request.GET.get("days", 30))
     mode = request.GET.get("mode", "multi")  # 'multi' or 'split'
@@ -265,9 +267,9 @@ def advanced_charts(request):
         "selected_category_ids": list(map(str, category_ids)),
         "days": days,
         "mode": mode,
-        "chart_data": chart_data,
+        "chart_data": mark_safe(json.dumps(chart_data)),
     }
-
+    print("chart_data:", chart_data)
     if request.headers.get("Hx-Request"):
         return render(request, "tracker/partials/chart_canvas.html", context)
 
