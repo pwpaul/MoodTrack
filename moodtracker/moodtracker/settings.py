@@ -24,6 +24,7 @@ AUTH_USER_MODEL = "tracker.CustomUser"
 LOGIN_REDIRECT_URL = "/answer_all/"
 LOGOUT_REDIRECT_URL = "/login"
 LOGIN_URL = "/login"
+LOGOUT_REDIRECT_URL = "/login"
 
 
 # Quick-start development settings - unsuitable for production
@@ -33,10 +34,11 @@ LOGIN_URL = "/login"
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+
 
 if DEBUG is True:
-    Allowed_Hosts = ['*']
+    ALLOWED_HOSTS = ["*"]
     SECRET_KEY = "django-insecure-blz8u)4%qrhwug%u8&_5_^q@fa^z$)sg14^9fsa^$yoox)#j96"
 else:
     ALLOWED_HOSTS = ['157.245.135.6', 'localhost', 'ashleytron2000.reallypaul.wtf']
@@ -197,5 +199,3 @@ LOGGING = {
         },
     },
 }
-
-
