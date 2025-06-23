@@ -34,8 +34,8 @@ LOGOUT_REDIRECT_URL = "/login"
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
-
+#DEBUG = os.environ.get("DJANGO_DEBUG", "False") == "True"
+DEBUG = True
 
 if DEBUG is True:
     ALLOWED_HOSTS = ["*"]

@@ -1,4 +1,7 @@
+import seaborn as sns
 import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 import io
 import base64
 from django.shortcuts import render, get_object_or_404, redirect
@@ -6,6 +9,8 @@ from django.utils.timezone import now, timedelta
 from django.contrib.auth.decorators import login_required
 from .models import Category, Question, Answer
 from django.db.models import Prefetch
+from django.http import HttpResponse
+import pandas as pd
 
 
 def home(request):  # Home page
@@ -274,3 +279,62 @@ def advanced_charts(request):
         return render(request, "tracker/partials/chart_canvas.html", context)
 
     return render(request, "tracker/charts.html", context)
+
+
+
+@login_required
+def seaborn_chart_image(request):
+    days = int(request.GET.get("days", 30))
+    mode = request.GET.get("mode", "multi")
+    category_ids = request.GET.getlist("categories")
+
+    start_date = now() - timedelta(days=days)
+    categories = (
+        Category.objects.filter(id__in=category_ids)
+        if category_ids
+        else Category.objects.all()
+    )
+
+    questions = Question.objects.filter(category__in=categories).prefetch_related(
+        "answers"
+    )
+
+    # Flatten answers
+    data = []
+    for q in questions:
+        for a in q.answers.filter(user=request.user, created_at__gte=start_date):
+            if q.question_type == Question.SCALE and a.scale_answer is not None:
+                value = a.scale_answer
+            elif q.question_type == Question.YES_NO and a.yes_no_answer is not None:
+                value = 1 if a.yes_no_answer else 0
+            else:
+                continue
+
+            data.append({
+                "question": q.text,
+                "value": value,
+                "date": a.created_at.date()
+            })
+
+    if not data:
+        return HttpResponse(status=204)  # No content
+
+    df = pd.DataFrame(data)
+
+    # Plot
+    plt.figure(figsize=(10, 6))
+    if mode == "multi":
+        sns.lineplot(data=df, x="date", y="value", hue="question", marker="o")
+    else:  # split
+        g = sns.FacetGrid(df, col="question", col_wrap=2, height=4, aspect=1.5)
+        g.map_dataframe(sns.lineplot, x="date", y="value", marker="o")
+        g.set_titles("{col_name}")
+
+    plt.tight_layout()
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.close()
+    buffer.seek(0)
+
+    return HttpResponse(buffer.read(), content_type="image/png")

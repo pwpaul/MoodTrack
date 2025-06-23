@@ -1,3 +1,11 @@
-<div class="mt-4">
-    <canvas id="advancedChart" height="100" data-chart='{{ chart_data|safe }}'></canvas>
+<div class="mt-4 text-center">
+    <img
+        id="seaborn-chart"
+        hx-get="{% url 'seaborn_chart' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
+        hx-trigger="load, change from:#filter-form"
+        hx-target="#seaborn-chart"
+        class="img-fluid"
+        alt="Seaborn Chart"
+    >
 </div>
+
