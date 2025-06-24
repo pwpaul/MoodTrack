@@ -209,77 +209,99 @@ def question_chart(request, question_id):
 
 
 @login_required
+# def advanced_charts(request):
+#     import json
+#     from django.utils.safestring import mark_safe
+#     # Get parameters
+#     days = int(request.GET.get("days", 30))
+#     mode = request.GET.get("mode", "multi")  # 'multi' or 'split'
+#     category_ids = request.GET.getlist("categories")  # list of IDs
+
+#     # Calculate date range
+#     start_date = now() - timedelta(days=days)
+
+#     # Get all categories (for the UI)
+#     all_categories = Category.objects.all()
+
+#     # If none selected, default to all
+#     if not category_ids:
+#         selected_categories = all_categories
+#     else:
+#         selected_categories = Category.objects.filter(id__in=category_ids)
+
+#     # Fetch relevant questions and answers
+#     questions = Question.objects.filter(
+#         category__in=selected_categories
+#     ).prefetch_related(
+#         Prefetch(
+#             "answers",
+#             queryset=Answer.objects.filter(
+#                 user=request.user, created_at__gte=start_date
+#             ).order_by("created_at"),
+#             to_attr="filtered_answers",
+#         )
+#     )
+
+#     # Build data for Chart.js
+#     chart_data = []
+#     for question in questions:
+#         data = {
+#             "label": question.text,
+#             "data": [],
+#         }
+#         for answer in question.filtered_answers:
+#             if (
+#                 question.question_type == Question.SCALE
+#                 and answer.scale_answer is not None
+#             ):
+#                 value = answer.scale_answer
+#             elif (
+#                 question.question_type == Question.YES_NO
+#                 and answer.yes_no_answer is not None
+#             ):
+#                 value = 1 if answer.yes_no_answer else 0
+#             else:
+#                 continue
+#             data["data"].append(
+#                 {"x": answer.created_at.strftime("%Y-%m-%d"), "y": value}
+#             )
+#         chart_data.append(data)
+
+#     context = {
+#         "all_categories": all_categories,
+#         "selected_category_ids": list(map(str, category_ids)),
+#         "days": days,
+#         "mode": mode,
+#         "chart_data": mark_safe(json.dumps(chart_data)),
+#     }
+#     print("chart_data:", chart_data)
+#     if request.headers.get("Hx-Request"):
+#         return render(request, "tracker/partials/chart_canvas.html", context)
+
+#     return render(request, "tracker/charts.html", context)
+
 def advanced_charts(request):
-    import json
-    from django.utils.safestring import mark_safe
-    # Get parameters
     days = int(request.GET.get("days", 30))
-    mode = request.GET.get("mode", "multi")  # 'multi' or 'split'
-    category_ids = request.GET.getlist("categories")  # list of IDs
+    mode = request.GET.get("mode", "multi")
+    category_ids = request.GET.getlist("categories")
 
-    # Calculate date range
-    start_date = now() - timedelta(days=days)
-
-    # Get all categories (for the UI)
     all_categories = Category.objects.all()
-
-    # If none selected, default to all
-    if not category_ids:
-        selected_categories = all_categories
-    else:
-        selected_categories = Category.objects.filter(id__in=category_ids)
-
-    # Fetch relevant questions and answers
-    questions = Question.objects.filter(
-        category__in=selected_categories
-    ).prefetch_related(
-        Prefetch(
-            "answers",
-            queryset=Answer.objects.filter(
-                user=request.user, created_at__gte=start_date
-            ).order_by("created_at"),
-            to_attr="filtered_answers",
-        )
+    selected_categories = (
+        Category.objects.filter(id__in=category_ids) if category_ids else all_categories
     )
-
-    # Build data for Chart.js
-    chart_data = []
-    for question in questions:
-        data = {
-            "label": question.text,
-            "data": [],
-        }
-        for answer in question.filtered_answers:
-            if (
-                question.question_type == Question.SCALE
-                and answer.scale_answer is not None
-            ):
-                value = answer.scale_answer
-            elif (
-                question.question_type == Question.YES_NO
-                and answer.yes_no_answer is not None
-            ):
-                value = 1 if answer.yes_no_answer else 0
-            else:
-                continue
-            data["data"].append(
-                {"x": answer.created_at.strftime("%Y-%m-%d"), "y": value}
-            )
-        chart_data.append(data)
 
     context = {
         "all_categories": all_categories,
         "selected_category_ids": list(map(str, category_ids)),
         "days": days,
         "mode": mode,
-        "chart_data": mark_safe(json.dumps(chart_data)),
-    }
-    print("chart_data:", chart_data)
+        "timeframes": [7, 14, 30, 60, 90, 180, 365],
+}
+
     if request.headers.get("Hx-Request"):
         return render(request, "tracker/partials/chart_canvas.html", context)
 
     return render(request, "tracker/charts.html", context)
-
 
 
 @login_required
@@ -338,3 +360,6 @@ def seaborn_chart_image(request):
     buffer.seek(0)
 
     return HttpResponse(buffer.read(), content_type="image/png")
+
+
+

@@ -22,6 +22,6 @@ urlpatterns = [
     ),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("answer_all/", views.answer_all_questions, name="answer_all"),
-    path("charts/", views.advanced_charts, name="advanced_charts"),
-    path("seaborn-chart/", views.seaborn_chart_image, name="seaborn_chart"),
+    path("charts/", views.advanced_charts, name="charts"),
+    path("charts/image/", views.seaborn_chart_image, name="seaborn_chart_image"),
 ]

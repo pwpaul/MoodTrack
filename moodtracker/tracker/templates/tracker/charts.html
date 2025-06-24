@@ -4,12 +4,11 @@
 <div class="container mt-4">
     <h1 class="mb-4">Advanced Charts</h1>
 
-    <!-- Filters -->
     <div class="row mb-4">
         <!-- Category selection -->
         <div class="col-md-4 mb-3">
             <h5>Select Categories</h5>
-            <form id="filter-form" hx-get="{% url 'advanced_charts' %}" hx-target="#chart-area" hx-push-url="true" hx-trigger="change from:#filter-form" class="form">
+            <form id="filter-form" hx-get="{% url 'charts' %}" hx-target="#chart-area" hx-push-url="true" hx-trigger="change from:#filter-form" class="form">
                 {% for category in all_categories %}
                 <div class="form-check">
                     <input
@@ -35,25 +34,13 @@
         <div class="col-md-4 mb-3">
             <h5>Select Timeframe</h5>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-primary {% if days == 14 %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days=14{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                    hx-target="#chart-area" hx-push-url="true">2w</button>
-
-                <button type="button" class="btn btn-outline-primary {% if days == 30 %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days=30{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                    hx-target="#chart-area" hx-push-url="true">1m</button>
-
-                <button type="button" class="btn btn-outline-primary {% if days == 60 %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days=60{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                    hx-target="#chart-area" hx-push-url="true">2m</button>
-
-                <button type="button" class="btn btn-outline-primary {% if days == 90 %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days=90{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                    hx-target="#chart-area" hx-push-url="true">3m</button>
-
-                <button type="button" class="btn btn-outline-primary {% if days == 180 %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days=180{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                    hx-target="#chart-area" hx-push-url="true">6m</button>
+               {% for d in timeframes %}
+                    <button type="button" class="btn btn-outline-primary {% if days == d %}active{% endif %}"
+                        hx-get="{% url 'charts' %}?days={{ d }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
+                        hx-target="#chart-area" hx-push-url="true">
+                        {{ d }}{% if d == 14 %}w{% else %}m{% endif %}
+                    </button>
+                {% endfor %}
             </div>
         </div>
 
@@ -62,15 +49,12 @@
             <h5>Chart Mode</h5>
             <div class="btn-group" role="group">
                 <button type="button" class="btn btn-outline-secondary {% if mode == 'multi' %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=multi"
-                    hx-target="#chart-area" hx-push-url="true">
-                    Multi-Line
-                </button>
+                    hx-get="{% url 'charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=multi"
+                    hx-target="#chart-area" hx-push-url="true">Multi-Line</button>
+
                 <button type="button" class="btn btn-outline-secondary {% if mode == 'split' %}active{% endif %}"
-                    hx-get="{% url 'advanced_charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=split"
-                    hx-target="#chart-area" hx-push-url="true">
-                    One Per Question
-                </button>
+                    hx-get="{% url 'charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=split"
+                    hx-target="#chart-area" hx-push-url="true">One Per Question</button>
             </div>
         </div>
     </div>
