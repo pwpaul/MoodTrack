@@ -208,6 +208,72 @@ def question_chart(request, question_id):
         return render(request, "tracker/partials/chart.html", context)
     return render(request, "tracker/question_chart.html", context)
 
+def generate_chart_image(question, start_date, user):
+    answers = question.answers.filter(user=user, created_at__gte=start_date).order_by("created_at")
+    if not answers:
+        return None
+
+    x = [a.created_at for a in answers]
+    if question.question_type == Question.SCALE:
+        y = [a.scale_answer for a in answers]
+    elif question.question_type == Question.YES_NO:
+        y = [1 if a.yes_no_answer else 0 for a in answers]
+    else:
+        return None
+
+    if not any(y):
+        return None
+
+    sns.set(style="whitegrid")
+    plt.figure(figsize=(6, 3))
+    sns.lineplot(x=x, y=y, marker="o")
+    plt.title(question.text, fontsize=10)
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
+
+    buffer = BytesIO()
+    plt.savefig(buffer, format="png")
+    plt.close()
+    buffer.seek(0)
+
+    encoded = base64.b64encode(buffer.read()).decode('utf-8')
+    return f"data:image/png;base64,{encoded}"
+
+
+# @login_required
+# def advanced_charts(request):
+#     days = int(request.GET.get("days", 30))
+#     mode = request.GET.get("mode", "multi")
+#     category_ids = request.GET.getlist("categories")
+#     start_date = now() - timedelta(days=days)
+
+#     all_categories = Category.objects.all()
+#     selected_categories = (
+#         Category.objects.filter(id__in=category_ids)
+#         if category_ids else all_categories
+#     )
+
+#     timeframes = [
+#         {"label": "1w", "days": 7},
+#         {"label": "1m", "days": 30},
+#         {"label": "3m", "days": 90},
+#         {"label": "6m", "days": 180},
+#         {"label": "1y", "days": 365},
+#     ]
+
+#     context = {
+#         "all_categories": all_categories,
+#         "selected_category_ids": list(map(str, category_ids)),
+#         "days": days,
+#         "mode": mode,
+#         "timeframes": timeframes,
+#     }
+
+#     if request.headers.get("Hx-Request"):
+#         return render(request, "tracker/partials/chart_filters_and_canvas.html", context)
+
+#     return render(request, "tracker/charts.html", context)
 
 @login_required
 def advanced_charts(request):
@@ -220,6 +286,16 @@ def advanced_charts(request):
     selected_categories = (
         Category.objects.filter(id__in=category_ids)
         if category_ids else all_categories
+    )
+
+    questions = Question.objects.filter(
+        category__in=selected_categories
+    ).prefetch_related(
+        Prefetch(
+            "answers",
+            queryset=Answer.objects.filter(user=request.user, created_at__gte=start_date),
+            to_attr="filtered_answers"
+        )
     )
 
     timeframes = [
@@ -238,11 +314,18 @@ def advanced_charts(request):
         "timeframes": timeframes,
     }
 
+    if mode == "split":
+        charts = []
+        for q in questions:
+            img = generate_chart_image(q, start_date, request.user)
+            if img:
+                charts.append({"question": q, "image": img})
+        context["split_charts"] = charts
+
     if request.headers.get("Hx-Request"):
         return render(request, "tracker/partials/chart_filters_and_canvas.html", context)
 
     return render(request, "tracker/charts.html", context)
-
 
 
 

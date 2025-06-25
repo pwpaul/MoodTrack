@@ -1,8 +1,22 @@
-<div class="mt-4 text-center">
-    <img
-        id="seaborn-chart"
-        src="{% url 'seaborn_chart_image' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-        class="img-fluid"
-        alt="Seaborn Chart"
-    >
-</div>
+{% if mode == "split" %}
+    <div class="mt-4">
+        {% for chart in split_charts %}
+        <div class="mb-4 text-center">
+            <h5>{{ chart.question.text }}</h5>
+            <img src="{{ chart.image }}" class="img-fluid" alt="Chart for {{ chart.question.text }}">
+        </div>
+        {% empty %}
+        <p class="text-muted text-center">No data available.</p>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="mt-4 text-center">
+        <img
+            id="seaborn-chart"
+            src="{% url 'seaborn_chart_image' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
+            class="img-fluid"
+            alt="Seaborn Chart"
+        >
+    </div>
+{% endif %}
+
