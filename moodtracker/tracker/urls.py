@@ -24,4 +24,5 @@ urlpatterns = [
     path("answer_all/", views.answer_all_questions, name="answer_all"),
     path("charts/", views.advanced_charts, name="charts"),
     path("charts/image/", views.seaborn_chart_image, name="seaborn_chart_image"),
+    path("charts/partial/", views.chart_canvas_partial, name="chart_canvas_partial"),
 ]

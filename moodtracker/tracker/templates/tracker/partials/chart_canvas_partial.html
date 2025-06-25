@@ -1,4 +1,4 @@
-<div id="chart-container" class="mt-4 text-center">
+<div class="mt-4 text-center">
     <img
         id="seaborn-chart"
         src="{% url 'seaborn_chart_image' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"

@@ -11,6 +11,7 @@ from .models import Category, Question, Answer
 from django.db.models import Prefetch
 from django.http import HttpResponse
 import pandas as pd
+import matplotlib.dates as mdates
 
 
 def home(request):  # Home page
@@ -209,157 +210,126 @@ def question_chart(request, question_id):
 
 
 @login_required
-# def advanced_charts(request):
-#     import json
-#     from django.utils.safestring import mark_safe
-#     # Get parameters
-#     days = int(request.GET.get("days", 30))
-#     mode = request.GET.get("mode", "multi")  # 'multi' or 'split'
-#     category_ids = request.GET.getlist("categories")  # list of IDs
-
-#     # Calculate date range
-#     start_date = now() - timedelta(days=days)
-
-#     # Get all categories (for the UI)
-#     all_categories = Category.objects.all()
-
-#     # If none selected, default to all
-#     if not category_ids:
-#         selected_categories = all_categories
-#     else:
-#         selected_categories = Category.objects.filter(id__in=category_ids)
-
-#     # Fetch relevant questions and answers
-#     questions = Question.objects.filter(
-#         category__in=selected_categories
-#     ).prefetch_related(
-#         Prefetch(
-#             "answers",
-#             queryset=Answer.objects.filter(
-#                 user=request.user, created_at__gte=start_date
-#             ).order_by("created_at"),
-#             to_attr="filtered_answers",
-#         )
-#     )
-
-#     # Build data for Chart.js
-#     chart_data = []
-#     for question in questions:
-#         data = {
-#             "label": question.text,
-#             "data": [],
-#         }
-#         for answer in question.filtered_answers:
-#             if (
-#                 question.question_type == Question.SCALE
-#                 and answer.scale_answer is not None
-#             ):
-#                 value = answer.scale_answer
-#             elif (
-#                 question.question_type == Question.YES_NO
-#                 and answer.yes_no_answer is not None
-#             ):
-#                 value = 1 if answer.yes_no_answer else 0
-#             else:
-#                 continue
-#             data["data"].append(
-#                 {"x": answer.created_at.strftime("%Y-%m-%d"), "y": value}
-#             )
-#         chart_data.append(data)
-
-#     context = {
-#         "all_categories": all_categories,
-#         "selected_category_ids": list(map(str, category_ids)),
-#         "days": days,
-#         "mode": mode,
-#         "chart_data": mark_safe(json.dumps(chart_data)),
-#     }
-#     print("chart_data:", chart_data)
-#     if request.headers.get("Hx-Request"):
-#         return render(request, "tracker/partials/chart_canvas.html", context)
-
-#     return render(request, "tracker/charts.html", context)
-
 def advanced_charts(request):
     days = int(request.GET.get("days", 30))
     mode = request.GET.get("mode", "multi")
     category_ids = request.GET.getlist("categories")
+    start_date = now() - timedelta(days=days)
 
     all_categories = Category.objects.all()
     selected_categories = (
-        Category.objects.filter(id__in=category_ids) if category_ids else all_categories
+        Category.objects.filter(id__in=category_ids)
+        if category_ids else all_categories
     )
+
+    timeframes = [
+        {"label": "1w", "days": 7},
+        {"label": "1m", "days": 30},
+        {"label": "3m", "days": 90},
+        {"label": "6m", "days": 180},
+        {"label": "1y", "days": 365},
+    ]
 
     context = {
         "all_categories": all_categories,
         "selected_category_ids": list(map(str, category_ids)),
         "days": days,
         "mode": mode,
-        "timeframes": [7, 14, 30, 60, 90, 180, 365],
-}
+        "timeframes": timeframes,
+    }
 
     if request.headers.get("Hx-Request"):
-        return render(request, "tracker/partials/chart_canvas.html", context)
+        return render(request, "tracker/partials/chart_filters_and_canvas.html", context)
 
     return render(request, "tracker/charts.html", context)
 
 
+
+
 @login_required
 def seaborn_chart_image(request):
+    user = request.user
     days = int(request.GET.get("days", 30))
     mode = request.GET.get("mode", "multi")
     category_ids = request.GET.getlist("categories")
-
     start_date = now() - timedelta(days=days)
-    categories = (
+
+    selected_categories = (
         Category.objects.filter(id__in=category_ids)
-        if category_ids
-        else Category.objects.all()
+        if category_ids else Category.objects.all()
     )
 
-    questions = Question.objects.filter(category__in=categories).prefetch_related(
-        "answers"
+    questions = Question.objects.filter(category__in=selected_categories).prefetch_related(
+        Prefetch(
+            "answers",
+            queryset=Answer.objects.filter(user=user, created_at__gte=start_date),
+            to_attr="filtered_answers",
+        )
     )
 
-    # Flatten answers
-    data = []
-    for q in questions:
-        for a in q.answers.filter(user=request.user, created_at__gte=start_date):
-            if q.question_type == Question.SCALE and a.scale_answer is not None:
-                value = a.scale_answer
-            elif q.question_type == Question.YES_NO and a.yes_no_answer is not None:
-                value = 1 if a.yes_no_answer else 0
-            else:
-                continue
+    # Setup plot
+    plt.figure(figsize=(12, 6))
+    sns.set(style="whitegrid")
 
-            data.append({
-                "question": q.text,
-                "value": value,
-                "date": a.created_at.date()
-            })
+    for question in questions:
+        dates = []
+        values = []
 
-    if not data:
-        return HttpResponse(status=204)  # No content
+        for answer in question.filtered_answers:
+            if question.question_type == Question.SCALE and answer.scale_answer is not None:
+                dates.append(answer.created_at)
+                values.append(answer.scale_answer)
+            elif question.question_type == Question.YES_NO and answer.yes_no_answer is not None:
+                dates.append(answer.created_at)
+                values.append(1 if answer.yes_no_answer else 0)
 
-    df = pd.DataFrame(data)
+        if dates:
+            sns.lineplot(x=dates, y=values, label=question.text)
 
-    # Plot
-    plt.figure(figsize=(10, 6))
-    if mode == "multi":
-        sns.lineplot(data=df, x="date", y="value", hue="question", marker="o")
-    else:  # split
-        g = sns.FacetGrid(df, col="question", col_wrap=2, height=4, aspect=1.5)
-        g.map_dataframe(sns.lineplot, x="date", y="value", marker="o")
-        g.set_titles("{col_name}")
+    # Improve x-axis date formatting
+    plt.gcf().autofmt_xdate()
+    plt.xticks(rotation=45, ha="right")
+    plt.xlabel("Date", fontsize=12)
+    plt.ylabel("Answer", fontsize=12)
 
+    # Improve legend layout
+    plt.legend(loc='upper left', bbox_to_anchor=(1.05, 1), borderaxespad=0.)
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
+    plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
 
-    buffer = BytesIO()
-    plt.savefig(buffer, format="png")
+    # Save chart to PNG buffer
+    buffer = io.BytesIO()
+    plt.savefig(buffer, format="png", bbox_inches="tight")
     plt.close()
     buffer.seek(0)
 
     return HttpResponse(buffer.read(), content_type="image/png")
+
+@login_required
+def chart_canvas_partial(request):
+    # Same logic as above
+    days = int(request.GET.get("days", 30))
+    mode = request.GET.get("mode", "multi")
+    category_ids = request.GET.getlist("categories")
+
+    timeframes = [
+        {"label": "1w", "days": 7},
+        {"label": "1m", "days": 30},
+        {"label": "3m", "days": 90},
+        {"label": "6m", "days": 180},
+        {"label": "1y", "days": 365},
+    ]
+
+    context = {
+        "selected_category_ids": list(map(str, category_ids)),
+        "days": days,
+        "mode": mode,
+        "timeframes": timeframes,
+    }
+
+    return render(request, "tracker/partials/chart_canvas_partial.html", context)
 
 
 

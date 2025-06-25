@@ -4,64 +4,12 @@
 <div class="container mt-4">
     <h1 class="mb-4">Advanced Charts</h1>
 
-    <div class="row mb-4">
-        <!-- Category selection -->
-        <div class="col-md-4 mb-3">
-            <h5>Select Categories</h5>
-            <form id="filter-form" hx-get="{% url 'charts' %}" hx-target="#chart-area" hx-push-url="true" hx-trigger="change from:#filter-form" class="form">
-                {% for category in all_categories %}
-                <div class="form-check">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        name="categories"
-                        value="{{ category.id }}"
-                        id="cat{{ category.id }}"
-                        {% if category.id|stringformat:"s" in selected_category_ids %}checked{% endif %}
-                    >
-                    <label class="form-check-label" for="cat{{ category.id }}">
-                        {{ category.name }}
-                    </label>
-                </div>
-                {% endfor %}
-
-                <input type="hidden" name="days" value="{{ days }}">
-                <input type="hidden" name="mode" value="{{ mode }}">
-            </form>
-        </div>
-
-        <!-- Timeframe buttons -->
-        <div class="col-md-4 mb-3">
-            <h5>Select Timeframe</h5>
-            <div class="btn-group" role="group">
-               {% for d in timeframes %}
-                    <button type="button" class="btn btn-outline-primary {% if days == d %}active{% endif %}"
-                        hx-get="{% url 'charts' %}?days={{ d }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode={{ mode }}"
-                        hx-target="#chart-area" hx-push-url="true">
-                        {{ d }}{% if d == 14 %}w{% else %}m{% endif %}
-                    </button>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Chart mode toggle -->
-        <div class="col-md-4 mb-3">
-            <h5>Chart Mode</h5>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-secondary {% if mode == 'multi' %}active{% endif %}"
-                    hx-get="{% url 'charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=multi"
-                    hx-target="#chart-area" hx-push-url="true">Multi-Line</button>
-
-                <button type="button" class="btn btn-outline-secondary {% if mode == 'split' %}active{% endif %}"
-                    hx-get="{% url 'charts' %}?days={{ days }}{% for cid in selected_category_ids %}&categories={{ cid }}{% endfor %}&mode=split"
-                    hx-target="#chart-area" hx-push-url="true">One Per Question</button>
-            </div>
-        </div>
+    <div id="filters">
+        {% include "tracker/partials/filters.html" %}
     </div>
 
-    <!-- Chart container -->
     <div id="chart-area">
-        {% include "tracker/partials/chart_canvas.html" %}
+        {% include "tracker/partials/chart_canvas_partial.html" %}
     </div>
 </div>
 {% endblock %}

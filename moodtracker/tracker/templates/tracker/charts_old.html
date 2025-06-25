@@ -1,0 +1,75 @@
+{% extends 'tracker/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Advanced Charts</h1>
+
+    <form id="filter-form"
+          hx-get="{% url 'charts' %}"
+          hx-target="#chart-area"
+          hx-push-url="true"
+          hx-trigger="change from:#filter-form"
+          class="form">
+
+        <div class="row mb-4">
+            <!-- Category Filters -->
+            <div class="col-md-4 mb-3">
+                <h5>Select Categories</h5>
+                {% for category in all_categories %}
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="categories"
+                           value="{{ category.id }}"
+                           id="cat{{ category.id }}"
+                           {% if category.id|stringformat:"s" in selected_category_ids %}checked{% endif %}>
+                    <label class="form-check-label" for="cat{{ category.id }}">
+                        {{ category.name }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Timeframe Buttons -->
+            <div class="col-md-4 mb-3">
+                <h5>Select Timeframe</h5>
+                <div class="btn-group" role="group">
+                    {% for tf in timeframes %}
+                    <button type="button"
+                            class="btn btn-outline-primary {% if days == tf.days %}active{% endif %}"
+                            onclick="document.getElementById('days-input').value={{ tf.days }}; document.getElementById('filter-form').dispatchEvent(new Event('change'));">
+                        {{ tf.label }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Chart Mode Buttons -->
+            <div class="col-md-4 mb-3">
+                <h5>Chart Mode</h5>
+                <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-outline-secondary {% if mode == 'multi' %}active{% endif %}"
+                            onclick="document.getElementById('mode-input').value='multi'; document.getElementById('filter-form').dispatchEvent(new Event('change'));">
+                        Multi-Line
+                    </button>
+                    <button type="button"
+                            class="btn btn-outline-secondary {% if mode == 'split' %}active{% endif %}"
+                            onclick="document.getElementById('mode-input').value='split'; document.getElementById('filter-form').dispatchEvent(new Event('change'));">
+                        One Per Question
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden Inputs to Track Selection -->
+        <input type="hidden" name="days" id="days-input" value="{{ days }}">
+        <input type="hidden" name="mode" id="mode-input" value="{{ mode }}">
+    </form>
+
+    <!-- Chart Display -->
+    <div id="chart-area">
+        {% include "tracker/partials/chart_canvas_partial.html" %}
+    </div>
+</div>
+{% endblock %}
